@@ -171,6 +171,20 @@ Section "Install Arduino Drivers"
   ${EndIf}
 SectionEnd
 
+Section "Install i3 Berlin Drivers"
+  ; Set output path to the driver directory.
+  SetOutPath "$INSTDIR\drivers\"
+  File /r "drivers\"
+  
+  ${If} ${RunningX64}
+    IfSilent +2
+      ExecWait '"$INSTDIR\drivers\RRD_RUMBA_TAURINO_DriverSetup.exe" /lm'
+  ${Else}
+    IfSilent +2
+      ExecWait '"$INSTDIR\drivers\RRD_RUMBA_TAURINO_DriverSetup.exe" /lm'
+  ${EndIf}
+SectionEnd
+
 Section "Open STL files with Cura"
 	WriteRegStr HKCR .stl "" "Cura STL model file"
 	DeleteRegValue HKCR .stl "Content Type"

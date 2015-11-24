@@ -192,10 +192,10 @@ $MAKE -j ${JOBS} HARDWARE_MOTHERBOARD=72 ARDUINO_INSTALL_DIR=${ARDUINO_PATH} ARD
 $MAKE -j ${JOBS} HARDWARE_MOTHERBOARD=72 ARDUINO_INSTALL_DIR=${ARDUINO_PATH} ARDUINO_VERSION=${ARDUINO_VERSION} BUILD_DIR=_UltimakerMarlin_Plus_Dual_115200 DEFINES="'VERSION_BASE=\"Ultimaker+:${BUILD_NAME}\"' 'VERSION_PROFILE=\"115200_dual\"' BAUDRATE=115200 TEMP_SENSOR_1=20 EXTRUDERS=2"
 cd -
 
-gitClone \
-  https://github.com/Ultimaker/Ultimaker2Marlin.git \
-  git@github.com:Ultimaker/Ultimaker2Marlin.git \
-  _Ultimaker2Marlin
+#gitClone \
+#  https://github.com/Ultimaker/Ultimaker2Marlin.git \
+#  git@github.com:Ultimaker/Ultimaker2Marlin.git \
+#  _Ultimaker2Marlin
 cd _Ultimaker2Marlin/Marlin
 git checkout master
 git pull
@@ -352,7 +352,7 @@ if [ "$BUILD_TARGET" = "debian_i386" ]; then
     if [ $? != 0 ]; then echo "Failed to clone CuraEngine"; exit 1; fi
 	$MAKE -C CuraEngine VERSION=${BUILD_NAME}
     if [ $? != 0 ]; then echo "Failed to build CuraEngine"; exit 1; fi
-	sudo chown `whoami`:`whoami` scripts/linux/${BUILD_TARGET} -R
+	chown `whoami`:`whoami` scripts/linux/${BUILD_TARGET} -R
 	rm -rf scripts/linux/${BUILD_TARGET}/usr/share/cura
 	mkdir -p scripts/linux/${BUILD_TARGET}/usr/share/cura
 	cp -a Cura scripts/linux/${BUILD_TARGET}/usr/share/cura/
@@ -608,7 +608,8 @@ if [ $BUILD_TARGET = "win32" ]; then
 	gitClone \
 	  ${CURA_ENGINE_REPO} \
 	  ${CURA_ENGINE_REPO_PUSHURL} \
-	  CuraEngine
+	  CuraEngine \
+	  ${CURA_ENGINE_BRANCH}
     if [ $? != 0 ]; then echo "Failed to clone CuraEngine"; exit 1; fi
 fi
 
@@ -674,8 +675,10 @@ if [ $BUILD_TARGET = "win32" ]; then
 	rm -rf ${TARGET_DIR}/python/Lib/OpenGL/DLLS/gle*
 
     #Build the C++ engine
-	$MAKE -C CuraEngine VERSION=${BUILD_NAME} OS=Windows_NT CXX=${CXX}
-    if [ $? != 0 ]; then echo "Failed to build CuraEngine"; exit 1; fi
+    #$MAKE -C CuraEngine VERSION=${BUILD_NAME} OS=Windows_NT CXX=${CXX}
+    #if [ $? != 0 ]; then echo "Failed to build CuraEngine"; exit 1; fi
+	mkdir CuraEngine/build
+	cp win32/CuraEngine.exe CuraEngine/build
 fi
 
 #add Cura
@@ -690,9 +693,15 @@ echo $BUILD_NAME > ${TARGET_DIR}/Cura/version
 if [ $BUILD_TARGET = "win32" ]; then
     cp -a scripts/${BUILD_TARGET}/*.bat $TARGET_DIR/
     cp CuraEngine/build/CuraEngine.exe $TARGET_DIR
-	cp /usr/lib/gcc/i686-w64-mingw32/4.8/libgcc_s_sjlj-1.dll $TARGET_DIR
-    cp /usr/i686-w64-mingw32/lib/libwinpthread-1.dll $TARGET_DIR
-    cp /usr/lib/gcc/i686-w64-mingw32/4.8/libstdc++-6.dll $TARGET_DIR
+    
+
+    # cp /usr/lib/gcc/i686-w64-mingw32/4.8/libgcc_s_sjlj-1.dll $TARGET_DIR
+    # cp /usr/i686-w64-mingw32/lib/libwinpthread-1.dll $TARGET_DIR
+    # cp /usr/lib/gcc/i686-w64-mingw32/4.8/libstdc++-6.dll $TARGET_DIR
+    
+    cp win32/CuraWin/libgcc_s_sjlj-1.dll $TARGET_DIR
+    cp win32/CuraWin/libwinpthread-1.dll $TARGET_DIR
+    cp win32/CuraWin/libstdc++-6.dll $TARGET_DIR
 fi
 
 #package the result
